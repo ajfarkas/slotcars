@@ -1,0 +1,32 @@
+* { margin: 0; }
+
+.track-container {
+	position: relative;
+	outline: 4px solid orange;
+	width: 90vw;
+	height: auto;
+	margin-left: 5vw;
+}
+
+#track {
+	width: 100%;
+}
+
+#track path {
+	fill: none;
+	stroke: #aaa;
+	stroke-width: 3;
+}
+
+.track-label {
+	text-align: right;
+	padding: 2px 4px;
+}
+
+.car {
+	position: absolute;
+	width: 20px;
+	height: 15px;
+	border-radius: 0 5px 5px 0;
+	background-color: rebeccapurple;
+}
