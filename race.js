@@ -1,3 +1,6 @@
+// globals
+svgNS = 'http://www.w3.org/2000/svg';
+
 // configs
 const trackMargin = 20;
 const trackW = 500;
@@ -21,30 +24,87 @@ const label = document.querySelector('.track-label');
 
 const trackStartPos = {
 	oval: [
-		[`${trackMargin+ovalRad+ovalRad*ovalF}px`, `${trackMargin}px`]
+		[ovalRad, 0]
 	]
 }
 
+const carSize = {
+	oval: [20, 20]
+}
+
+function setAttrs(target, attrs) {
+	Object.entries(attrs).forEach(([attr, val]) => {
+		target.setAttribute(attr, val);
+	});
+}
+
+function createSVG(tag) {
+	return document.createElementNS(svgNS, tag);
+}
+
 class Car {
-	constructor(el, x, y) {
+	constructor(track, demo) {
+		if (!track || track.constructor.name !== 'Track')
+			throw new Error('Must initialize Car with a valid Track');
+
+		const el = createSVG('image');
 		this.el = el;
-		if (x && y) this.setPosition(x, y);
+		this.demo();
+
+		track.addCar(this);
+		this.track = track;
+
+		const halfsize = carSize[track.kind][1]/2;
+
+		setAttrs(el, {
+			href: `racer${this.id}.png`,
+			width: carSize[track.kind][0],
+			height: carSize[track.kind][1],
+			transform: `translate(-${halfsize},-${halfsize})`,
+			id: `car-${this.id}`
+		})
+		
+		this.setStart(this.track.kind, this.id);
 	}
 
 	setPosition(x, y) {
 		this.x = x;
 		this.y = y;
-		this.el.style.left = x;
-		this.el.style.top = y;
+		this.el.setAttribute('x', x);
+		this.el.setAttribute('y', y);
 	}
 
 	setStart(kind, id) {
 		this.setPosition(...trackStartPos[kind][id]);
 	}
 
+	demo() {
+		const anim = createSVG('animateMotion');
+		setAttrs(anim, {
+			'xlink:href': `#car-${this.id}`,
+			dur: '10s',
+			begin: '0s',
+			fill: 'freeze',
+			repeatCount: 'indefinite'
+		});
+		const mpath = createSVG('mpath');
+		setAttrs(mpath, {
+			'xlink:href': '#track-0'
+		});
+		anim.appendChild(mpath);
+
+		setAttrs(this.el, {x: 0, y: 0});
+
+		this.track.el.appendChild(anim);
+	}
+
 	set id(i) {
-		if (this.id !== undefined) this.id = i;
-		return this.id;
+		if (this._id === undefined) this._id = i;
+		return this._id;
+	}
+
+	get id() {
+		return this._id;
 	}
 };
 
@@ -77,14 +137,17 @@ class Track {
 	// Adds car to Track and returns car ID
 	addCar(car) {
 		const id = this.cars.length;
+		car.id = id;
 		this.cars.push(car);
-		car.setStart(this.kind, id);
-		return id;
+		this.el.appendChild(car.el);
 	}
 }
 
 // DOM Elements
-const car0 = new Car(document.querySelector('.car-0'));
 const track = new Track(document.getElementById('track'), 'oval');
-car0.id = track.addCar(car0);
+const car0 = new Car(track);
 
+document.getElementById('demo').addEventListener('click', ev => {
+	ev.target.disabled = true;
+	car0.demo();
+})
