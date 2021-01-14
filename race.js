@@ -49,7 +49,6 @@ class Car {
 
 		const el = createSVG('image');
 		this.el = el;
-		this.demo();
 
 		track.addCar(this);
 		this.track = track;
@@ -96,6 +95,10 @@ class Car {
 		setAttrs(this.el, {x: 0, y: 0});
 
 		this.track.el.appendChild(anim);
+		const demoTrack = this.track.el.outerHTML;
+		const parent = this.track.el.parentElement;
+		parent.removeChild(track.el);
+		parent.innerHTML += demoTrack;
 	}
 
 	set id(i) {
