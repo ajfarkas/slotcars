@@ -15,7 +15,7 @@
 #track path {
 	fill: none;
 	stroke: #aaa;
-	stroke-width: 3;
+	stroke-width: 0.1;
 }
 
 .track-label {

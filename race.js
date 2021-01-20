@@ -123,19 +123,84 @@ const tracks = {
 		+ `c0,${ovalNeg} ${ovalRad*(1-ovalF)},${ovalNeg} ${ovalRad},${ovalNeg}`
 };
 
+const segType = {
+	ee: ['l3,0', 'l3,0'],
+	ww: ['l-3,0', 'l-3,0'],
+	ss: ['l0,3', 'l0,3'],
+	nn: ['l0,-3', 'l0,-3'],
+	es: [
+		'c2,0 2,2 2,2',
+		'c1,0 1,1 1,1'
+	],
+	sw: [
+		'c0,2 -2,2 -2,2',
+		'c0,1 -1,1 -1,1'
+	],
+	wn: [
+		'c-2,0 -2,-2 -2,-2',
+		'c-1,0 -1,-1 -1,-1'
+	],
+	ne: [
+		'c0,-2 2,-2 2,-2',
+		'c0,-1 1,-1 1,-1'
+	],
+	cross: null
+}
+
+const startPos = {
+	e: ['3,1', '3,2'],
+	s: ['2,3', '1,3'],
+	w: ['6,2', '6,1'],
+	n: ['1,6', '2,6']
+}
+
+const preset = {
+	oval: 'eeeeeeesssswwwwwwwwnnnne'
+}
+
 class Track {
 	constructor(el, kind) {
 		this.el = el;
-		this.cars = [];
-		this.setKind(kind);
+		this.track0 = createSVG('path');
+		this.track1 = createSVG('path');
 
-		this.el.setAttribute('viewBox', `-${trackMargin} -${trackMargin} ${trackW + (trackMargin*2)} ${trackH + (trackMargin*2)}`);
+		this.buildTrack(preset.oval);
+		// this.cars = [];
+		// this.setKind(kind);
+
+		// this.el.setAttribute('viewBox', `-${trackMargin} -${trackMargin} ${trackW + (trackMargin*2)} ${trackH + (trackMargin*2)}`);
 	}
 
 	setKind(kind) {
 		this.kind = kind;
 		label.innerText = trackType;
 		this.el.querySelector('path').setAttribute('d', tracks[kind]);
+	}
+
+	buildTrack(codeStr) {
+		const startDir = codeStr[0]
+		let width = 3;
+		let height = 3;
+		let t0d = `M${startPos[startDir][0]}`;
+		let t1d = `M${startPos[startDir][1]}`;
+
+		const segments = codeStr.match(/[news]{2}/g);
+		segments.forEach(s => {
+			// This is incorrect, I have to use the order of e/w, n/s
+			switch (s[1]) {
+				case 'e': width += 3; break;
+				case 's': height += 3; break;
+			}
+			t0d += segType[s][0];
+			t1d += segType[s][1];
+		});
+
+		this.track0.setAttribute('d', t0d);
+		this.track1.setAttribute('d', t1d);
+
+		this.el.setAttribute('viewBox', `0 0 ${width} ${height}`);
+		this.el.appendChild(this.track0);
+		this.el.appendChild(this.track1);
 	}
 	// Adds car to Track and returns car ID
 	addCar(car) {
@@ -148,9 +213,9 @@ class Track {
 
 // DOM Elements
 const track = new Track(document.getElementById('track'), 'oval');
-const car0 = new Car(track);
+// const car0 = new Car(track);
 
-document.getElementById('demo').addEventListener('click', ev => {
-	ev.target.disabled = true;
-	car0.demo();
-})
+// document.getElementById('demo').addEventListener('click', ev => {
+// 	ev.target.disabled = true;
+// 	car0.demo();
+// })
