@@ -1,24 +1,5 @@
 // globals
-svgNS = 'http://www.w3.org/2000/svg';
-
-// configs
-const trackMargin = 20;
-const trackW = 500;
-const trackH = 300;
-const ovalRad = 150;
-const ovalF = 0.2;
-
-// calculated
-const ovalNeg = -1 * ovalRad;
-const ovalRad2 = 2 * ovalRad;
-
-let trackType = null;
-
-// check for mistakes in config
-if (ovalRad > (trackW/2) || ovalRad > (trackH/2)) {
-	console.log(trackW/2 - ovalRad, trackH/2 - ovalRad)
-	throw new Error('Track size error, radius must be ≤ shortest length.')
-}
+const svgNS = 'http://www.w3.org/2000/svg';
 
 const label = document.querySelector('.track-label');
 
@@ -26,11 +7,11 @@ const trackStartPos = {
 	oval: [
 		[ovalRad, 0]
 	]
-}
+};
 
 const carSize = {
 	oval: [20, 20]
-}
+};
 
 function setAttrs(target, attrs) {
 	Object.entries(attrs).forEach(([attr, val]) => {
@@ -43,7 +24,7 @@ function createSVG(tag) {
 }
 
 class Car {
-	constructor(track, demo) {
+	constructor(track) {
 		if (!track || track.constructor.name !== 'Track')
 			throw new Error('Must initialize Car with a valid Track');
 
@@ -61,7 +42,7 @@ class Car {
 			height: carSize[track.kind][1],
 			transform: `translate(-${halfsize},-${halfsize})`,
 			id: `car-${this.id}`
-		})
+		});
 		
 		this.setStart(this.track.kind, this.id);
 	}
@@ -97,7 +78,7 @@ class Car {
 		this.track.el.appendChild(anim);
 		const demoTrack = this.track.el.outerHTML;
 		const parent = this.track.el.parentElement;
-		parent.removeChild(track.el);
+		parent.removeChild(this.track.el);
 		parent.innerHTML += demoTrack;
 	}
 
@@ -109,18 +90,6 @@ class Car {
 	get id() {
 		return this._id;
 	}
-};
-
-const tracks = {
-	oval: `M${ovalRad},0`
-		+ `l${trackW - (ovalRad2)},0`
-		+ `c${ovalRad*ovalF},0 ${ovalRad},0 ${ovalRad},${ovalRad}`
-		+ `l0,${trackH - ovalRad2}`
-		+ `c0,${ovalRad} ${ovalNeg*(1-ovalF)},${ovalRad} ${ovalNeg},${ovalRad}`
-		+ `l${-1*trackW + (ovalRad2)},0`
-		+ `c${ovalNeg*ovalF},0 ${ovalNeg},0 ${ovalNeg},${ovalNeg}`
-		+ `l0,${-1*trackH + ovalRad2}`
-		+ `c0,${ovalNeg} ${ovalRad*(1-ovalF)},${ovalNeg} ${ovalRad},${ovalNeg}`
 };
 
 const segType = {
@@ -145,18 +114,18 @@ const segType = {
 		'c0,-1 1,-1 1,-1'
 	],
 	cross: null
-}
-
+};
+// This is incorrect, only east and south work
 const startPos = {
 	e: ['3,1', '3,2'],
 	s: ['2,3', '1,3'],
 	w: ['6,2', '6,1'],
 	n: ['1,6', '2,6']
-}
+};
 
 const preset = {
 	oval: 'eeeeeeesssswwwwwwwwnnnne'
-}
+};
 
 class Track {
 	constructor(el, kind) {
@@ -164,21 +133,17 @@ class Track {
 		this.track0 = createSVG('path');
 		this.track1 = createSVG('path');
 
-		this.buildTrack(preset.oval);
+		this.buildTrack(preset[kind]);
 		// this.cars = [];
-		// this.setKind(kind);
-
-		// this.el.setAttribute('viewBox', `-${trackMargin} -${trackMargin} ${trackW + (trackMargin*2)} ${trackH + (trackMargin*2)}`);
 	}
 
 	setKind(kind) {
 		this.kind = kind;
-		label.innerText = trackType;
-		this.el.querySelector('path').setAttribute('d', tracks[kind]);
+		label.innerText = kind;
 	}
 
 	buildTrack(codeStr) {
-		const startDir = codeStr[0]
+		const startDir = codeStr[0];
 		let width = 3;
 		let height = 3;
 		let t0d = `M${startPos[startDir][0]}`;
@@ -214,8 +179,3 @@ class Track {
 // DOM Elements
 const track = new Track(document.getElementById('track'), 'oval');
 // const car0 = new Car(track);
-
-// document.getElementById('demo').addEventListener('click', ev => {
-// 	ev.target.disabled = true;
-// 	car0.demo();
-// })
