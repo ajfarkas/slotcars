@@ -3,16 +3,6 @@ const svgNS = 'http://www.w3.org/2000/svg';
 
 const label = document.querySelector('.track-label');
 
-const trackStartPos = {
-	oval: [
-		[ovalRad, 0]
-	]
-};
-
-const carSize = {
-	oval: [20, 20]
-};
-
 function setAttrs(target, attrs) {
 	Object.entries(attrs).forEach(([attr, val]) => {
 		target.setAttribute(attr, val);
@@ -24,38 +14,27 @@ function createSVG(tag) {
 }
 
 class Car {
-	constructor(track) {
-		if (!track || track.constructor.name !== 'Track')
-			throw new Error('Must initialize Car with a valid Track');
-
+	constructor(id, pos) {
 		const el = createSVG('image');
 		this.el = el;
-
-		track.addCar(this);
-		this.track = track;
-
-		const halfsize = carSize[track.kind][1]/2;
+		this.id = id;
 
 		setAttrs(el, {
 			href: `racer${this.id}.png`,
-			width: carSize[track.kind][0],
-			height: carSize[track.kind][1],
-			transform: `translate(-${halfsize},-${halfsize})`,
+			width: 1,
+			height: 1,
+			transform: 'translate(-0.5,-0.5)',
 			id: `car-${this.id}`
 		});
 		
-		this.setStart(this.track.kind, this.id);
+		this.setPosition(pos);
 	}
 
-	setPosition(x, y) {
+	setPosition([x, y]) {
 		this.x = x;
 		this.y = y;
 		this.el.setAttribute('x', x);
 		this.el.setAttribute('y', y);
-	}
-
-	setStart(kind, id) {
-		this.setPosition(...trackStartPos[kind][id]);
 	}
 
 	demo() {
@@ -80,15 +59,6 @@ class Car {
 		const parent = this.track.el.parentElement;
 		parent.removeChild(this.track.el);
 		parent.innerHTML += demoTrack;
-	}
-
-	set id(i) {
-		if (this._id === undefined) this._id = i;
-		return this._id;
-	}
-
-	get id() {
-		return this._id;
 	}
 };
 
@@ -117,10 +87,10 @@ const segType = {
 };
 // This is incorrect, only east and south work
 const startPos = {
-	e: ['3,1', '3,2'],
-	s: ['2,3', '1,3'],
-	w: ['6,2', '6,1'],
-	n: ['1,6', '2,6']
+	e: [[3,1], [3,2]],
+	s: [[2,3], [1,3]],
+	w: [[6,2], [6,1]],
+	n: [[1,6], [2,6]]
 };
 
 const preset = {
@@ -130,11 +100,23 @@ const preset = {
 class Track {
 	constructor(el, kind) {
 		this.el = el;
-		this.track0 = createSVG('path');
-		this.track1 = createSVG('path');
+		this.startPos = null;
+		this.cars = [];
+		this.track = [
+			createSVG('path'),
+			createSVG('path')
+		];
 
-		this.buildTrack(preset[kind]);
-		// this.cars = [];
+		let trackShape = preset[kind];
+
+		if (!preset[kind]) {
+			trackShape = kind;
+			kind = 'custom';
+		}
+
+		const trackBuilt = this.buildTrack(trackShape);
+		if (trackBuilt) this.addCar(this.startPos[0]);
+		this.setKind(kind);
 	}
 
 	setKind(kind) {
@@ -144,10 +126,12 @@ class Track {
 
 	buildTrack(codeStr) {
 		const startDir = codeStr[0];
+		this.startPos = startPos[startDir];
+
 		let width = 3;
 		let height = 3;
-		let t0d = `M${startPos[startDir][0]}`;
-		let t1d = `M${startPos[startDir][1]}`;
+		let t0d = `M${startPos[startDir][0].join(',')}`;
+		let t1d = `M${startPos[startDir][1].join(',')}`;
 
 		const segments = codeStr.match(/[news]{2}/g);
 		segments.forEach(s => {
@@ -160,17 +144,20 @@ class Track {
 			t1d += segType[s][1];
 		});
 
-		this.track0.setAttribute('d', t0d);
-		this.track1.setAttribute('d', t1d);
+		this.track[0].setAttribute('d', t0d);
+		this.track[1].setAttribute('d', t1d);
 
 		this.el.setAttribute('viewBox', `0 0 ${width} ${height}`);
-		this.el.appendChild(this.track0);
-		this.el.appendChild(this.track1);
+		this.el.appendChild(this.track[0]);
+		this.el.appendChild(this.track[1]);
+
+		return true;
 	}
 	// Adds car to Track and returns car ID
-	addCar(car) {
+	addCar(pos) {
 		const id = this.cars.length;
-		car.id = id;
+		const car = new Car(id, pos);
+
 		this.cars.push(car);
 		this.el.appendChild(car.el);
 	}
@@ -178,4 +165,3 @@ class Track {
 
 // DOM Elements
 const track = new Track(document.getElementById('track'), 'oval');
-// const car0 = new Car(track);
