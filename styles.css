@@ -18,6 +18,10 @@
 	stroke-width: 0.1;
 }
 
+#track image {
+	image-rendering: pixelated;
+}
+
 .track-label {
 	text-align: right;
 	padding: 2px 4px;

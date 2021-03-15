@@ -18,6 +18,7 @@ class Car {
 		const el = createSVG('image');
 		this.el = el;
 		this.id = id;
+		this.velocity = 1;
 
 		setAttrs(el, {
 			href: `racer${this.id}.png`,
@@ -26,7 +27,7 @@ class Car {
 			transform: 'translate(-0.5,-0.5)',
 			id: `car-${this.id}`
 		});
-		
+		// TODO: Allow starting position to face other directions.
 		this.setPosition(pos);
 	}
 
@@ -35,6 +36,17 @@ class Car {
 		this.y = y;
 		this.el.setAttribute('x', x);
 		this.el.setAttribute('y', y);
+	}
+
+	set velocity(n) {
+		if (typeof n !== 'number' || n < 0) n = 0;
+		else if (n > 1) n = 1;
+
+		return this._v = n;
+	}
+
+	get velocity() {
+		return this._v || 0;
 	}
 
 	demo() {
@@ -61,7 +73,7 @@ class Car {
 		parent.innerHTML += demoTrack;
 	}
 };
-
+// TODO: add `en|ws|se|nw`.
 const segType = {
 	ee: ['l3,0', 'l3,0'],
 	ww: ['l-3,0', 'l-3,0'],
@@ -86,11 +98,14 @@ const segType = {
 	cross: null
 };
 // This is incorrect, only east and south work
+/* This should be a get method on Track, as the
+ * positions is relative to the track size.
+*/
 const startPos = {
 	e: [[3,1], [3,2]],
 	s: [[2,3], [1,3]],
-	w: [[6,2], [6,1]],
-	n: [[1,6], [2,6]]
+	// w: [[6,2], [6,1]],
+	// n: [[1,6], [2,6]]
 };
 
 const preset = {
@@ -115,13 +130,17 @@ class Track {
 		}
 
 		const trackBuilt = this.buildTrack(trackShape);
-		if (trackBuilt) this.addCar(this.startPos[0]);
+		if (trackBuilt) {
+			this.addCar(this.startPos[0]);
+			this.addCar(this.startPos[1]);
+		}
 		this.setKind(kind);
 	}
 
 	setKind(kind) {
 		this.kind = kind;
 		label.innerText = kind;
+		return kind;
 	}
 
 	buildTrack(codeStr) {
