@@ -36,6 +36,9 @@ class Car {
 	}
 
 	drive(s) {
+		if (this.animation) {
+			cancelAnimationFrame(this.animation);
+		}
 		const now = Date.now();
 		const speed = typeof s === 'number'
 			? (this.speed = s) : this.speed;
@@ -54,9 +57,9 @@ class Car {
 			this.animation = requestAnimationFrame(
 				this.drive.bind(this, speed)
 			);
-		} else if (this.animation) {
-			cancelAnimationFrame(this.animation);
 		}
+
+		return speed;
 	}
 
 	set position([x, y]) {
@@ -195,8 +198,8 @@ class Track {
 // DOM Elements
 const track = new Track(document.getElementById('track'), 'oval');
 // Testing functions
-const test = (id) => {
+const test = (id, speed) => {
 	const car = track.cars[id];
-	car.drive(1);
+	car.drive(typeof speed === 'number' ? speed : 1);
 	return 'driving';
 }
