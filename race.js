@@ -40,8 +40,10 @@ class Car {
 			cancelAnimationFrame(this.animation);
 		}
 		const now = Date.now();
-		const speed = typeof s === 'number'
-			? (this.speed = s) : this.speed;
+		if (typeof s === 'number') {
+			this.speed = s;
+		}
+		const { speed } = this;
 
 		if (now - this.lastAnimation > 1000 / FPS) {
 			// TODO add direction
