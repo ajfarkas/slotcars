@@ -41,22 +41,24 @@ params:
 
 methods:
 
-  - `setPosition`
-    - Sets the absolute position in the track SVG. This is the center point of the car element.
-    - @param `x, y` [Array] The (x, y) position for this car.
-    - @returns [Array] The updated position for this car.
-  - `demo` (Defunct)
+  - `drive`
+  	- Determines speed and velocity, and changes car position on next animation frame.
+  	- @param `s` [Number] 0 - 1, inclusive. The requested speed for this animation frame.
+  	- @returns [Number] Calculated speed.
 
 static methods:
+	- `set position`
+   - Sets the absolute position in the track SVG. This is the center point of the car element.
+    - @param `x, y` [Array] The (x, y) position for this car.
+    - @returns [Array] The updated position for this car.
+	- `set speed`
+		- Sets value for the car's speed, in `_s`.
+		- @param `n` [Number] Absolute speed of the car.
+		- @returns [Number] The updated speed.
 
- - `set velocity`
-   - Sets value for the car's velocity, in `_v`.
-   - @param `n` [Number] Absolute velocity of the car.
-   - @returns [Number] The updated velocity.
-
- - `get velocity`
-   - Gets value for the car's velocity.
-   - @returns [Number] The car's current velocity.
+ - `get speed`
+		- Gets value for the car's speed.
+		- @returns [Number] The car's current speed.
 
 ## Functions
 

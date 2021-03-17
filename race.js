@@ -1,7 +1,9 @@
 // globals
 const svgNS = 'http://www.w3.org/2000/svg';
-
 const label = document.querySelector('.track-label');
+const FPS = 60;
+// portion of track segment traversed in 1000ms.
+const MAX_SPEED = 0.5 / FPS;
 
 function setAttrs(target, attrs) {
 	Object.entries(attrs).forEach(([attr, val]) => {
@@ -18,7 +20,9 @@ class Car {
 		const el = createSVG('image');
 		this.el = el;
 		this.id = id;
-		this.velocity = 1;
+		this.speed = 0;
+		this.animation = null;
+		this.lastAnimation = Date.now();
 
 		setAttrs(el, {
 			href: `racer${this.id}.png`,
@@ -28,49 +32,55 @@ class Car {
 			id: `car-${this.id}`
 		});
 		// TODO: Allow starting position to face other directions.
-		this.setPosition(pos);
+		this.position = pos;
 	}
 
-	setPosition([x, y]) {
+	drive(s) {
+		const now = Date.now();
+		const speed = typeof s === 'number'
+			? (this.speed = s) : this.speed;
+
+		if (now - this.lastAnimation > 1000 / FPS) {
+			// TODO add direction
+			const velocity = speed * MAX_SPEED;
+			let [x, y] = this.position;
+
+			this.position = [x + velocity, y];
+			this.speed = velocity;
+			this.lastAnimation = now;
+		}
+
+		if (speed > 0) {
+			this.animation = requestAnimationFrame(
+				this.drive.bind(this, speed)
+			);
+		} else if (this.animation) {
+			cancelAnimationFrame(this.animation);
+		}
+	}
+
+	set position([x, y]) {
 		this.x = x;
 		this.y = y;
 		this.el.setAttribute('x', x);
 		this.el.setAttribute('y', y);
+
+		return [x, y];
 	}
 
-	set velocity(n) {
+	get position() {
+		return [this.x, this.y];
+	}
+
+	set speed(n) {
 		if (typeof n !== 'number' || n < 0) n = 0;
 		else if (n > 1) n = 1;
 
-		return this._v = n;
+		return this._s = n;
 	}
 
-	get velocity() {
-		return this._v || 0;
-	}
-
-	demo() {
-		const anim = createSVG('animateMotion');
-		setAttrs(anim, {
-			'xlink:href': `#car-${this.id}`,
-			dur: '10s',
-			begin: '0s',
-			fill: 'freeze',
-			repeatCount: 'indefinite'
-		});
-		const mpath = createSVG('mpath');
-		setAttrs(mpath, {
-			'xlink:href': '#track-0'
-		});
-		anim.appendChild(mpath);
-
-		setAttrs(this.el, {x: 0, y: 0});
-
-		this.track.el.appendChild(anim);
-		const demoTrack = this.track.el.outerHTML;
-		const parent = this.track.el.parentElement;
-		parent.removeChild(this.track.el);
-		parent.innerHTML += demoTrack;
+	get speed() {
+		return this._s || 0;
 	}
 };
 // TODO: add `en|ws|se|nw`.
@@ -184,3 +194,9 @@ class Track {
 
 // DOM Elements
 const track = new Track(document.getElementById('track'), 'oval');
+// Testing functions
+const test = (id) => {
+	const car = track.cars[id];
+	car.drive(1);
+	return 'driving';
+}
