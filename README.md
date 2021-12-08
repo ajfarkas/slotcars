@@ -47,6 +47,8 @@ methods:
   	- @returns [Number] Calculated speed.
 
 static methods:
+	- `set trackSeg`
+	 - Records the track segment that the car is on, and the relative position in that segment.
 	- `set position`
    - Sets the absolute position in the track SVG. This is the center point of the car element.
     - @param `x, y` [Array] The (x, y) position for this car.

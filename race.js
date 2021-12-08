@@ -33,6 +33,15 @@ class Car {
 		});
 		// TODO: Allow starting position to face other directions.
 		this.position = pos;
+		// Where is the car on a track segment?
+		this.trackSeg = {
+			segment: 0,
+			position: pos
+		};
+
+		document.getElementById('position').addEventListener('click', () => {
+			console.log('id:', this.id, this.trackSeg.segment, this.trackSeg.position);
+		})
 	}
 
 	drive(s) {
@@ -64,11 +73,39 @@ class Car {
 		return speed;
 	}
 
+	set segmentInfo(data) {
+		this.trackWidth = data.width;
+		this.trackHeight = data.height;
+	}
+
+	set trackSeg({ segment, position }) {
+		this.segment = segment;
+		this.segmentPosition = position;
+	}
+
+	get trackSeg() {
+		return {
+			segment: this.segment,
+			position: this.segmentPosition
+		}
+	}
+
 	set position([x, y]) {
 		this.x = x;
 		this.y = y;
 		this.el.setAttribute('x', x);
 		this.el.setAttribute('y', y);
+
+		const trackFromY = Math.floor(y / 3);
+		const trackFromX = Math.floor(x / 3);
+		const segment = trackFromY + trackFromX;
+		const trackPosY = y % 3;
+		const trackPosX = x % 3;
+
+		this.trackSeg = {
+			segment,
+			position: [trackPosX, trackPosY]
+		}
 
 		return [x, y];
 	}
@@ -90,26 +127,74 @@ class Car {
 };
 // TODO: add `en|ws|se|nw`.
 const segType = {
-	ee: ['l3,0', 'l3,0'],
-	ww: ['l-3,0', 'l-3,0'],
-	ss: ['l0,3', 'l0,3'],
-	nn: ['l0,-3', 'l0,-3'],
-	es: [
-		'c2,0 2,2 2,2',
-		'c1,0 1,1 1,1'
-	],
-	sw: [
-		'c0,2 -2,2 -2,2',
-		'c0,1 -1,1 -1,1'
-	],
-	wn: [
-		'c-2,0 -2,-2 -2,-2',
-		'c-1,0 -1,-1 -1,-1'
-	],
-	ne: [
-		'c0,-2 2,-2 2,-2',
-		'c0,-1 1,-1 1,-1'
-	],
+	ee: {
+		create: ['l3,0', 'l3,0'],
+		move: [
+			[[1, 0], [1, 0], [1, 0]],
+			[[1, 0], [1, 0], [1, 0]]
+		]
+	},
+	ww: {
+		create: ['l-3,0', 'l-3,0'],
+		move: [
+			[[-1, 0], [-1, 0], [-1, 0]],
+			[[-1, 0], [-1, 0], [-1, 0]]
+		]
+	},
+	ss: {
+		create: ['l0,3', 'l0,3'],
+		move: [
+			[[0, 1], [0, 1], [0, 1]]
+			[[0, 1], [0, 1], [0, 1]],
+		]
+	},
+	nn: {
+		create: ['l0,-3', 'l0,-3'],
+		move: [
+			[[0, -1], [0, -1], [0, -1]],
+			[[0, -1], [0, -1], [0, -1]]
+		]
+	},
+	es: {
+		create: [
+			'c2,0 2,2 2,2',
+			'c1,0 1,1 1,1'
+		],
+		move: [
+			[[0, 0], [0, 0], [0, 0]],
+			[[0, 0], [0, 0], [0, 0]]
+		]
+	},
+	sw: {
+		create: [
+			'c0,2 -2,2 -2,2',
+			'c0,1 -1,1 -1,1'
+		],
+		move: [
+			[[0, 0], [0, 0], [0, 0]],
+			[[0, 0], [0, 0], [0, 0]]
+		]
+	},
+	wn: {
+		create: [
+			'c-2,0 -2,-2 -2,-2',
+			'c-1,0 -1,-1 -1,-1'
+		],
+		move: [
+			[[0, 0], [0, 0], [0, 0]],
+			[[0, 0], [0, 0], [0, 0]]
+		]
+	},
+	ne: {
+		create: [
+			'c0,-2 2,-2 2,-2',
+			'c0,-1 1,-1 1,-1'
+		],
+		move: [
+			[[0, 0], [0, 0], [0, 0]],
+			[[0, 0], [0, 0], [0, 0]]
+		]
+	},
 	cross: null
 };
 // This is incorrect, only east and south work
@@ -136,6 +221,7 @@ class Track {
 			createSVG('path'),
 			createSVG('path')
 		];
+		this.segmentData = {};
 
 		let trackShape = preset[kind];
 
@@ -174,8 +260,8 @@ class Track {
 				case 'e': width += 3; break;
 				case 's': height += 3; break;
 			}
-			t0d += segType[s][0];
-			t1d += segType[s][1];
+			t0d += segType[s].create[0];
+			t1d += segType[s].create[1];
 		});
 
 		this.track[0].setAttribute('d', t0d);
@@ -185,12 +271,16 @@ class Track {
 		this.el.appendChild(this.track[0]);
 		this.el.appendChild(this.track[1]);
 
+		this.segmentData.width = width / 3;
+		this.segmentData.height = height / 3;
+
 		return true;
 	}
 	// Adds car to Track and returns car ID
 	addCar(pos) {
 		const id = this.cars.length;
 		const car = new Car(id, pos);
+		car.segmentInfo = this.segmentData;
 
 		this.cars.push(car);
 		this.el.appendChild(car.el);
@@ -205,3 +295,10 @@ const test = (id, speed) => {
 	car.drive(typeof speed === 'number' ? speed : 1);
 	return 'driving';
 }
+let demo = false;
+document.getElementById('demo').addEventListener('click', () => {
+	if (!demo) test(0,1), test(1,6)
+	else test(0,0), test(1, -1)
+
+	demo = !demo;
+})
