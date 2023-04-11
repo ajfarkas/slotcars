@@ -1,0 +1,86 @@
+* {
+  margin: 0;
+}
+
+#world {
+  --board-h: 2000px;
+  --board-w: 2000px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  perspective: 400px;
+  perspective-origin: 50% 0;
+  overflow: visible;
+  margin-left: calc(50vw - (0.5 * var(--board-w)));
+  border: 1px solid red;
+}
+
+#board {
+  position: relative;
+  overflow: visible;
+  background-color: green;
+  width: var(--board-w);
+  height: var(--board-h);
+  transform-style: preserve-3d;
+  transform: rotateX(90deg);
+  /*   animation: spin 1s alternate infinite; */
+}
+
+.post {
+  --post-h: 80px;
+  --post-w: 20px;
+  --post-rotate: rotateX(-90deg);
+  position: absolute;
+  width: var(--post-w);
+  height: var(--post-h);
+  background: red;
+  backface-visibility: visible;
+  transform-origin: 0 100%;
+  transform: var(--post-rotate);
+  /*   animation: spin 1s alternate infinite; */
+}
+.north {
+  bottom: 100%;
+}
+.north.east {
+  background-color: blue;
+}
+.north.west {
+  background-color: red;
+}
+.east {
+  right: 0;
+}
+.south {
+  bottom: 0;
+}
+ .south.east {
+  background-color: black;
+}
+ .south.west {
+  background-color: gold;
+}
+.west {
+  left: 0;
+}
+.mid-v {
+	bottom: 50%;
+}
+.mid-h {
+	left: calc(50% - 0.5 * var(--post-w));
+	transform: var(--post-rotate);
+}
+.mid-v.mid-h {
+	background-color: peru;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(90deg);
+  }
+}
+
