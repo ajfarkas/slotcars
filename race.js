@@ -4,6 +4,8 @@ const label = document.querySelector('.track-label');
 const FPS = 60;
 // portion of track segment traversed in 1000ms.
 const MAX_SPEED = 0.5 / FPS;
+const TRACK_UNIT_W = 3;
+const TRACK_UNIT_H = 3;
 
 function setAttrs(target, attrs) {
 	Object.entries(attrs).forEach(([attr, val]) => {
@@ -128,28 +130,28 @@ class Car {
 // TODO: add `en|ws|se|nw`.
 const segType = {
 	ee: {
-		create: ['l3,0', 'l3,0'],
+		create: ['l3,0  ', 'l3,0  '],
 		move: [
 			[[1, 0], [1, 0], [1, 0]],
 			[[1, 0], [1, 0], [1, 0]]
 		]
 	},
 	ww: {
-		create: ['l-3,0', 'l-3,0'],
+		create: ['l-3,0  ', 'l-3,0  '],
 		move: [
 			[[-1, 0], [-1, 0], [-1, 0]],
 			[[-1, 0], [-1, 0], [-1, 0]]
 		]
 	},
 	ss: {
-		create: ['l0,3', 'l0,3'],
+		create: ['l0,3  ', 'l0,3  '],
 		move: [
 			[[0, 1], [0, 1], [0, 1]]
 			[[0, 1], [0, 1], [0, 1]],
 		]
 	},
 	nn: {
-		create: ['l0,-3', 'l0,-3'],
+		create: ['l0,-3  ', 'l0,-3  '],
 		move: [
 			[[0, -1], [0, -1], [0, -1]],
 			[[0, -1], [0, -1], [0, -1]]
@@ -157,8 +159,8 @@ const segType = {
 	},
 	es: {
 		create: [
-			'c2,0 2,2 2,2',
-			'c1,0 1,1 1,1'
+			'c2,0 2,2 2,2  ',
+			'c1,0 1,1 1,1  '
 		],
 		move: [
 			[[0, 0], [0, 0], [0, 0]],
@@ -167,8 +169,8 @@ const segType = {
 	},
 	sw: {
 		create: [
-			'c0,2 -2,2 -2,2',
-			'c0,1 -1,1 -1,1'
+			'c0,2 -2,2 -2,2  ',
+			'c0,1 -1,1 -1,1  '
 		],
 		move: [
 			[[0, 0], [0, 0], [0, 0]],
@@ -177,8 +179,8 @@ const segType = {
 	},
 	wn: {
 		create: [
-			'c-2,0 -2,-2 -2,-2',
-			'c-1,0 -1,-1 -1,-1'
+			'c-2,0 -2,-2 -2,-2  ',
+			'c-1,0 -1,-1 -1,-1  '
 		],
 		move: [
 			[[0, 0], [0, 0], [0, 0]],
@@ -187,8 +189,8 @@ const segType = {
 	},
 	ne: {
 		create: [
-			'c0,-2 2,-2 2,-2',
-			'c0,-1 1,-1 1,-1'
+			'c0,-2 2,-2 2,-2  ',
+			'c0,-1 1,-1 1,-1  '
 		],
 		move: [
 			[[0, 0], [0, 0], [0, 0]],
@@ -221,7 +223,14 @@ class Track {
 			createSVG('path'),
 			createSVG('path')
 		];
-		this.segmentData = {};
+		this.segmentData = {
+			width: 0,
+			height: 0,
+			segments: [
+				{},
+				{}
+			]
+		};
 
 		let trackShape = preset[kind];
 
@@ -248,20 +257,41 @@ class Track {
 		const startDir = codeStr[0];
 		this.startPos = startPos[startDir];
 
-		let width = 3;
-		let height = 3;
+		let width = TRACK_UNIT_W;
+		let height = TRACK_UNIT_H;
 		let t0d = `M${startPos[startDir][0].join(',')}`;
 		let t1d = `M${startPos[startDir][1].join(',')}`;
 
 		const segments = codeStr.match(/[news]{2}/g);
-		segments.forEach(s => {
+		const trackPos = [...this.startPos];
+		const trackUnits = [
+			startPos.e[0][0] % 3,
+			startPos.s[0][1] % 3
+		];
+		segments.forEach((s, i) => {
+			const segPath = [...segType[s].create];
 			// This is incorrect, I have to use the order of e/w, n/s
 			switch (s[1]) {
-				case 'e': width += 3; break;
-				case 's': height += 3; break;
+				case 'e':
+					width += TRACK_UNIT_W;
+					trackUnits[0]++;
+					break;
+				case 's':
+					height += TRACK_UNIT_H;
+					trackUnits[1]++;
+					break;
+				case 'w':
+					trackUnits[0]--;
+					break;
+				case 'n':
+					trackUnits[1]--;
+					break;
 			}
-			t0d += segType[s].create[0];
-			t1d += segType[s].create[1];
+			const trackUnitsStr = trackUnits.join(',');
+			this.segmentData.segments[0][trackUnitsStr] = segPath[0];
+			this.segmentData.segments[1][trackUnitsStr] = segPath[1];
+			t0d += segPath[0];
+			t1d += segPath[1];
 		});
 
 		this.track[0].setAttribute('d', t0d);
@@ -271,8 +301,9 @@ class Track {
 		this.el.appendChild(this.track[0]);
 		this.el.appendChild(this.track[1]);
 
-		this.segmentData.width = width / 3;
-		this.segmentData.height = height / 3;
+		this.segmentData.width = width / TRACK_UNIT_W;
+		this.segmentData.height = height / TRACK_UNIT_H;
+		console.log(this.segmentData)
 
 		return true;
 	}
@@ -291,7 +322,7 @@ class Track {
 const track = new Track(document.getElementById('track'), 'oval');
 // Testing functions
 const test = (id, speed) => {
-	const car = track.cars[id];
+	window.car = track.cars[id];
 	car.drive(typeof speed === 'number' ? speed : 1);
 	return 'driving';
 }
