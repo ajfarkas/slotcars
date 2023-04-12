@@ -13,7 +13,8 @@
   perspective-origin: 50% 0;
   overflow: visible;
   margin-left: calc(50vw - (0.5 * var(--board-w)));
-  border: 1px solid red;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
 }
 
 #board {
@@ -23,7 +24,7 @@
   width: var(--board-w);
   height: var(--board-h);
   transform-style: preserve-3d;
-  transform: rotateX(90deg);
+  transform: rotateX(110deg);
   /*   animation: spin 1s alternate infinite; */
 }
 
