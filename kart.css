@@ -21,8 +21,6 @@ body {
   overflow: visible;
   margin-left: calc(50vw - (0.5 * var(--board-w)));
   transform-style: preserve-3d;
-/*  transform-origin: 50% 50%;*/
-/*  transform: translateZ(calc(0.5 * var(--board-h)));*/
 }
 
 #racecar {
@@ -43,8 +41,20 @@ body {
   width: var(--board-w);
   height: var(--board-h);
   transform-style: preserve-3d;
-/*  transform: rotateX(90deg) translateZ(var(--perspective)) translateY(20px) rotateZ(0deg);*/
-  /*   animation: spin 1s alternate infinite; */
+}
+
+#pause {
+  --pause-size: 30px;
+  position: fixed;
+  top: calc(50vh - 1.5 * var(--pause-size));
+  left: calc(50vw - 1.5 * var(--pause-size));
+  width: var(--pause-size);
+  height: calc(3 * var(--pause-size));
+  background-color: black;
+  border-left: var(--pause-size) solid white;
+  border-right: var(--pause-size) solid white;
+  box-shadow: 0 0 0 calc(var(--pause-size) * 4) black;
+  visibility: hidden;
 }
 
 .post {
@@ -58,7 +68,6 @@ body {
   backface-visibility: visible;
   transform-origin: 0 100%;
   transform: var(--post-rotate);
-  /*   animation: spin 1s alternate infinite; */
 }
 .north {
   bottom: 100%;

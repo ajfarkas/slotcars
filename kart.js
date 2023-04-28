@@ -14,6 +14,7 @@ const getStyle = (value, el) =>
 const body = document.querySelector('body');
 const world = $id("world");
 const board = $id("board");
+const pause = $id("pause");
 
 const PERSPECTIVE = parseInt(getStyle('perspective', body));
 const BOARD_H = parseInt(getStyle("height", world));
@@ -23,6 +24,7 @@ const BOARD_TRANS = `rotateX(90deg) translateZ(${PERSPECTIVE }px)`;
 
 board.style.transform = `${BOARD_TRANS}  translateY(0) rotateZ(0)`;
 
+let move;
 let NORTH = SOUTH_POINT + 0;
 let EAST = 0;
 let ANGLE = 0;
@@ -51,19 +53,7 @@ const correctAngle = angle => {
   return angle;
 };
 
-const activeKeys = [];
-document.addEventListener('keyup', ev => {
-  const { key } = ev;
-  if (!key.match('Arrow')) return;
-  delete activeKeys[key];
-});
-document.addEventListener('keydown', ev => {
-  const { key } = ev;
-  if (!key.match('Arrow')) return;
-  activeKeys[key] = true;
-});
-
-const move = setInterval(() => {
+const play = () => setInterval(() => {
   Object.entries(activeKeys).forEach(([k, v]) => {
     if (!v) return;
 
@@ -98,3 +88,31 @@ const move = setInterval(() => {
   board.style.transform = `${BOARD_TRANS} translateY(${NORTH}px) translateX(${EAST}px)`;
   world.style.transform = `rotateY(${ANGLE}rad)`;
 }, 15);
+
+const stop = () => clearInterval(move);
+
+const activeKeys = [];
+let isPlaying = true;
+document.addEventListener('keyup', ev => {
+  const { key } = ev;
+  if (!key.match('Arrow')) return;
+  delete activeKeys[key];
+});
+document.addEventListener('keydown', ev => {
+  const { key } = ev;
+  if (key.match('Enter')) {
+    if (isPlaying) {
+      stop();
+      isPlaying = false;
+      pause.style.visibility = 'visible';
+    } else {
+      pause.style.visibility = 'hidden';
+      isPlaying = true;
+      move = play();
+    }
+  }
+  if (!key.match('Arrow')) return;
+  activeKeys[key] = true;
+});
+
+move = play();
