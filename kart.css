@@ -2,6 +2,15 @@
   margin: 0;
 }
 
+body {
+  --perspective: 400px;
+  perspective: var(--perspective);
+  perspective-origin: 50% 50%;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
 #world {
   --board-h: 2000px;
   --board-w: 2000px;
@@ -9,12 +18,22 @@
   top: 0;
   left: 0;
   display: inline-block;
-  perspective: 400px;
-  perspective-origin: 50% 0;
   overflow: visible;
   margin-left: calc(50vw - (0.5 * var(--board-w)));
   transform-style: preserve-3d;
-  transform: rotateY(0deg);
+/*  transform-origin: 50% 50%;*/
+/*  transform: translateZ(calc(0.5 * var(--board-h)));*/
+}
+
+#racecar {
+  --car-size: 40px;
+  position: absolute;
+  top: calc(var(--board-h) / 2 - var(--perspective) - var(--car-size));
+  left: 50%;
+  width: var(--car-size);
+  height: var(--car-size);
+  background-color: slategrey;
+  transform: translateX(-50%) rotate(45deg);
 }
 
 #board {
@@ -24,7 +43,7 @@
   width: var(--board-w);
   height: var(--board-h);
   transform-style: preserve-3d;
-  transform: rotateX(110deg);
+/*  transform: rotateX(90deg) translateZ(var(--perspective)) translateY(20px) rotateZ(0deg);*/
   /*   animation: spin 1s alternate infinite; */
 }
 
