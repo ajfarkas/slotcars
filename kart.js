@@ -18,10 +18,8 @@ const car = $id('racecar');
 const pause = $id('pause');
 
 const PERSPECTIVE = parseInt(getStyle('perspective', body));
-const BOARD_H = parseInt(getStyle('height', world));
 const SOUTH_POINT = -1 * PERSPECTIVE;
-const WORLD_TRANS = ''; // `translateZ(${0.5 * BOARD_H}px)`;
-const BOARD_TRANS = `rotateX(90deg) translateZ(${PERSPECTIVE }px)`;
+const BOARD_TRANS = `rotateX(90deg) translateZ(${PERSPECTIVE}px)`;
 
 board.style.transform = `${BOARD_TRANS}  translateY(0) rotateZ(0)`;
 

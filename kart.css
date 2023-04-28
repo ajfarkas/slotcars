@@ -39,10 +39,13 @@ body {
 #board {
   position: relative;
   overflow: visible;
-  background-color: green;
   width: var(--board-w);
   height: var(--board-h);
   transform-style: preserve-3d;
+  background-color: green;
+  background-image: url('./path.png');
+  background-size: cover;
+  image-rendering: pixelated;
 }
 
 #pause {
