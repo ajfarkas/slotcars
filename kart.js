@@ -12,12 +12,13 @@ const getStyle = (value, el) =>
   .getPropertyValue(value);
 
 const body = document.querySelector('body');
-const world = $id("world");
-const board = $id("board");
-const pause = $id("pause");
+const world = $id('world');
+const board = $id('board');
+const car = $id('racecar');
+const pause = $id('pause');
 
 const PERSPECTIVE = parseInt(getStyle('perspective', body));
-const BOARD_H = parseInt(getStyle("height", world));
+const BOARD_H = parseInt(getStyle('height', world));
 const SOUTH_POINT = -1 * PERSPECTIVE;
 const WORLD_TRANS = ''; // `translateZ(${0.5 * BOARD_H}px)`;
 const BOARD_TRANS = `rotateX(90deg) translateZ(${PERSPECTIVE }px)`;
@@ -87,6 +88,8 @@ const play = () => setInterval(() => {
 
   board.style.transform = `${BOARD_TRANS} translateY(${NORTH}px) translateX(${EAST}px)`;
   world.style.transform = `rotateY(${ANGLE}rad)`;
+  car.style.transform = `translateX(-50%) rotateY(${-1 * ANGLE}rad)`;
+
 }, 15);
 
 const stop = () => clearInterval(move);

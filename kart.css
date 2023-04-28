@@ -24,14 +24,16 @@ body {
 }
 
 #racecar {
-  --car-size: 40px;
+  --car-size: 70px;
   position: absolute;
   top: calc(var(--board-h) / 2 - var(--perspective) - var(--car-size));
   left: 50%;
   width: var(--car-size);
   height: var(--car-size);
-  background-color: slategrey;
   transform: translateX(-50%) rotate(45deg);
+  background-image: url('./rear_racer1.png');
+  background-size: cover;
+  image-rendering: pixelated;
 }
 
 #board {
