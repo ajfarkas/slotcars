@@ -18,10 +18,13 @@ const car = $id('racecar');
 const pause = $id('pause');
 
 const PERSPECTIVE = parseInt(getStyle('perspective', body));
+const ADJUSTMENT = parseInt(getStyle('--adjustment', body));
+const BOARD_H = parseInt(getStyle('--board-h', world));
 const SOUTH_POINT = -1 * PERSPECTIVE;
-const BOARD_TRANS = `rotateX(90deg) translateZ(${PERSPECTIVE}px)`;
+const BOARD_VIEW = 0 - ADJUSTMENT - (parseInt(getStyle('height', car)) / 2);
+const BOARD_TRANS = `translateY(-50%) rotateX(90deg) translateZ(${BOARD_VIEW}px)`;
 
-board.style.transform = `${BOARD_TRANS}  translateY(0) rotateZ(0)`;
+board.style.transform = BOARD_TRANS;
 
 let move;
 let NORTH = SOUTH_POINT + 0;

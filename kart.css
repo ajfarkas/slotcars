@@ -4,6 +4,7 @@
 
 body {
   --perspective: 400px;
+  --adjustment: 400;
   perspective: var(--perspective);
   perspective-origin: 50% 50%;
   overflow: hidden;
@@ -26,7 +27,7 @@ body {
 #racecar {
   --car-size: 70px;
   position: absolute;
-  top: calc(var(--board-h) / 2 - var(--perspective) - var(--car-size));
+  top: calc(1px * var(--adjustment) - var(--car-size) / 2);
   left: 50%;
   width: var(--car-size);
   height: var(--car-size);
@@ -42,6 +43,7 @@ body {
   width: var(--board-w);
   height: var(--board-h);
   transform-style: preserve-3d;
+  transform-origin: 50% 50%;
   background-color: green;
   background-image: url('./path.png');
   background-size: cover;
